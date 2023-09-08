@@ -1,17 +1,6 @@
 use std::collections::HashMap;
-
-fn product(x: u32, y: u32) -> u32 {
-    if y == 1 { x }
-    else { x + product(x, y-1) }
-}
-
-fn fibonnacci(x: u32) -> u32
-    { if x == 0 || x == 1 { 1 } else { fibonnacci(x-1) + fibonnacci(x - 2) } }
-
-fn division(x: u32, y: u32) -> u32 {
-    if y == 0 { 1 }
-    else { x - division(x, y-1) }
-}
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 fn count_vowel(text: String) -> HashMap<char, u32> {
     let vowels = ['a', 'e', 'i', 'o', 'u'];
@@ -20,16 +9,30 @@ fn count_vowel(text: String) -> HashMap<char, u32> {
         if !(vowels_map.contains_key(&str)) && vowels.contains(&str) {
             vowels_map.insert(str, 1);
         } else {
-            vowels_map.entry(str).and_modify(|value| *value+=1);
+            vowels_map.entry(str).and_modify(|value| *value += 1);
         }
     }
     return vowels_map;
 }
 
+fn open_file(path: String) -> File {
+    File::open(path).expect("File not found")
+}
+
+fn read_line_by_line(file: File) -> std::io::Result<String> {
+    let buff_file = BufReader::new(file);
+    let mut text: String = String::new();
+    for line in buff_file.lines() {
+        text += &line?;
+    }
+    Ok(text)
+}
+
 fn main() {
-    let text: String = "Gets the given key's corresponding entry in the map for in-place manipulation".to_string();
-    let response = count_vowel(text.to_lowercase());
-    for i in response.iter() {
+    let file = open_file("text.txt".to_string());
+    let result_line_by_line = read_line_by_line(file);
+    let text = result_line_by_line.unwrap().to_lowercase();
+    for i in count_vowel(text).iter() {
         println!("key: {} --- value: {}", i.0, i.1);
     }
 }
